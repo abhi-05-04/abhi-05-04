@@ -41,8 +41,8 @@
 
 <h1>Recent Projects </h1>
 <div align="center">
-<img src="https://github-readme-stats.vercel.app/api/pin/?username=abhi-05-04&repo=QueueAutomation&show_icons=true&theme=jolly" style="width:400px; height:160px;">
-<img src="https://github-readme-stats.vercel.app/api/pin/?username=abhi-05-04&repo=preferential_voting_Using_Blockhain&show_icons=true&theme=jolly" style="width:400px; height:160px;"> 
+<a href="https://github.com/abhi-05-04/QueueAutomation"><img src="https://github-readme-stats.vercel.app/api/pin/?username=abhi-05-04&repo=QueueAutomation&show_icons=true&theme=jolly" style="width:400px; height:160px;"></a>
+<a href="https://github.com/abhi-05-04/preferential_voting_Using_Blockhain"><img src="https://github-readme-stats.vercel.app/api/pin/?username=abhi-05-04&repo=preferential_voting_Using_Blockhain&show_icons=true&theme=jolly" style="width:400px; height:160px;"> </a>
 </div>
 
 
