@@ -27,6 +27,7 @@ jobs:
       - name: Debug - List output files
         run: ls -R dist || echo "Directory dist does not exist"
 
+
       # Deploy the animation to GitHub Pages
       - uses: crazy-max/ghaction-github-pages@v4
         with:
