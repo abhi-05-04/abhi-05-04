@@ -2,7 +2,7 @@ name: Snake Animation
 
 on:
   schedule: # execute every 12 hours
-    - cron: "* */12 * * *"
+    - cron: "0 */12 * * *"
   workflow_dispatch:
 
 jobs:
@@ -11,17 +11,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Snake Animation
+
+      # Ensure the output directory exists
+      - name: Create output directory
+        run: mkdir -p dist
+
+      # Generate the Snake animation
       - uses: Platane/snk@v3
         id: snake-gif
         with:
           github_user_name: abhi-05-04
-          svg_out_path: dist/github-contribution-grid-snake.svg
+          outputs: dist/github-contribution-grid-snake.svg
 
+      # Debugging step
+      - name: Debug - List output files
+        run: ls -R dist || echo "Directory dist does not exist"
+
+
+      # Deploy the animation to GitHub Pages
       - uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output
           build_dir: dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
