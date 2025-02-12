@@ -10,18 +10,18 @@ jobs:
     name: Jobs to update data
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       # Snake Animation
-      - uses: Platane/snk@main
+      - uses: Platane/snk@v3
         id: snake-gif
         with:
           github_user_name: abhi-05-04
-          svg_out_path: public/github-contribution-grid-snake.svg
+          svg_out_path: dist/github-contribution-grid-snake.svg
 
       - uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output
-          build_dir: public
+          build_dir: dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
