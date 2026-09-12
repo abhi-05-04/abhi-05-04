@@ -29,6 +29,7 @@
         <span><b>MOUSE</b> AIM / FIRE</span>
         <span><b>SPACE</b> DASH</span>
         <span><b>ESC</b> PAUSE</span>
+        <span class="mobile-only-hint"><b>TOUCH</b> JOYSTICK / AIM PAD</span>
       </div>
       <p class="high-score">BEST RUN <strong id="menuHighScore">0</strong></p>
     </section>
@@ -51,6 +52,16 @@
         <div id="hullPips" class="pips"></div>
       </div>
       <button id="pauseButton" class="icon-button" aria-label="Pause game">Ⅱ</button>
+    </section>
+
+    <section id="touchControls" class="touch-controls hidden" aria-label="Touch controls">
+      <div id="joystick" class="joystick" aria-label="Move">
+        <i id="joystickKnob"></i>
+      </div>
+      <button id="touchDash" class="touch-action" type="button">DASH</button>
+      <div id="firePad" class="fire-pad" aria-label="Aim and fire">
+        <span>AIM<br><b>FIRE</b></span>
+      </div>
     </section>
 
     <section id="upgradeScreen" class="screen overlay hidden">

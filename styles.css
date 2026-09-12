@@ -75,6 +75,7 @@ button { font: 600 13px "DM Mono", monospace; cursor: pointer; }
 .primary-button span { margin-left: 26px; font-size: 18px; }
 .controls { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 70px; }
 .controls b { color: var(--ink); font-weight: 500; margin-right: 6px; }
+.mobile-only-hint { display: none; }
 .high-score { margin-top: 34px; }
 .high-score strong { color: var(--yellow); margin-left: 8px; }
 
@@ -90,6 +91,18 @@ button { font: 600 13px "DM Mono", monospace; cursor: pointer; }
 .pips i { width: 19px; height: 6px; background: var(--pink); }
 .pips i.empty { opacity: .18; }
 .icon-button { margin-left: auto; pointer-events: auto; border: 1px solid rgba(234,247,242,.35); background: transparent; color: var(--ink); padding: 10px 13px; }
+.touch-controls { display: none; }
+.touch-controls.hidden { display: none; }
+.joystick, .fire-pad {
+  position: absolute; width: 112px; height: 112px; border: 1px solid rgba(109,247,208,.38);
+  border-radius: 50%; background: rgba(109,247,208,.08); touch-action: none;
+}
+.joystick { left: 24px; bottom: 28px; }
+.joystick::after { content: ""; position: absolute; inset: 27px; border: 1px dashed rgba(109,247,208,.25); border-radius: 50%; }
+.joystick i { position: absolute; z-index: 1; left: 36px; top: 36px; width: 40px; height: 40px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 18px rgba(109,247,208,.45); pointer-events: none; }
+.fire-pad { right: 22px; bottom: 28px; display: grid; place-items: center; color: var(--muted); font: 10px/1.5 "DM Mono"; text-align: center; }
+.fire-pad b { color: var(--pink); font-weight: 500; }
+.touch-action { position: absolute; right: 153px; bottom: 39px; width: 66px; height: 42px; border: 1px solid rgba(255,209,102,.5); border-radius: 21px; background: rgba(255,209,102,.1); color: var(--yellow); font: 10px "DM Mono"; touch-action: none; }
 
 .overlay { background: var(--panel); backdrop-filter: blur(12px); flex-direction: column; align-items: center; justify-content: center; text-align: center; }
 .overlay h2 { font-size: clamp(38px, 5vw, 68px); letter-spacing: -.06em; margin: 8px 0 14px; }
@@ -109,6 +122,8 @@ button { font: 600 13px "DM Mono", monospace; cursor: pointer; }
 .text-button:hover { color: var(--ink); }
 
 @media (max-width: 650px) {
+  .touch-controls:not(.hidden) { display: block; position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+  .touch-controls .joystick, .touch-controls .fire-pad, .touch-controls .touch-action { pointer-events: auto; }
   .level-grid { flex-direction: column; width: min(85vw, 280px); }
   .level-card { width: 100%; min-height: auto; }
   .hud { gap: 12px; padding: 16px; }
@@ -119,4 +134,5 @@ button { font: 600 13px "DM Mono", monospace; cursor: pointer; }
   .upgrade-grid { grid-template-columns: 1fr; width: min(85vw, 280px); }
   .upgrade-card { min-height: auto; padding: 14px; }
   .controls { margin-top: 48px; gap: 12px; font-size: 9px; }
+  .mobile-only-hint { display: inline; }
 }
