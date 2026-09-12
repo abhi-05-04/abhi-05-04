@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Neon Salvager</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="game-shell">
+    <canvas id="gameCanvas" aria-label="Neon Salvager game arena"></canvas>
+
+    <section id="menuScreen" class="screen active">
+      <div class="brand-mark">NS</div>
+      <p class="eyebrow">ORBITAL RECOVERY // 2084</p>
+      <h1>NEON<br><span>SALVAGER</span></h1>
+      <p class="tagline">Hold the line. Harvest the glow. Outrun the swarm.</p>
+      <div class="level-select">
+        <p class="eyebrow">SELECT SECTOR</p>
+        <div class="level-grid">
+          <button class="level-card selected" data-level="1" type="button"><b>01</b><strong>TRIPLE ARC</strong><span>Three-shot spread<br>Reduced target count</span></button>
+          <button class="level-card" data-level="2" type="button"><b>02</b><strong>STRAIGHT SHOT</strong><span>Single direct shot<br>Reduced target count</span></button>
+          <button class="level-card" data-level="3" type="button"><b>03</b><strong>THE SWARM</strong><span>Current full challenge<br>Continuous targets</span></button>
+        </div>
+      </div>
+      <button id="startButton" class="primary-button">START RUN <span>↗</span></button>
+      <div class="controls">
+        <span><b>W A S D + ARROWS</b> MOVE</span>
+        <span><b>MOUSE</b> AIM / FIRE</span>
+        <span><b>SPACE</b> DASH</span>
+        <span><b>ESC</b> PAUSE</span>
+      </div>
+      <p class="high-score">BEST RUN <strong id="menuHighScore">0</strong></p>
+    </section>
+
+    <section id="hud" class="hud hidden">
+      <div class="hud-block">
+        <span class="hud-label">SCORE</span>
+        <strong id="scoreValue">000000</strong>
+      </div>
+      <div class="hud-block wave-readout">
+        <span class="hud-label">SECTOR</span>
+        <strong id="waveValue">01 / 05</strong>
+      </div>
+      <div class="hud-block resource-readout">
+        <span class="hud-label">CHARGE</span>
+        <div class="meter"><i id="chargeMeter"></i></div>
+      </div>
+      <div class="hud-block lives-readout">
+        <span class="hud-label">HULL</span>
+        <div id="hullPips" class="pips"></div>
+      </div>
+      <button id="pauseButton" class="icon-button" aria-label="Pause game">Ⅱ</button>
+    </section>
+
+    <section id="upgradeScreen" class="screen overlay hidden">
+      <p class="eyebrow">SECTOR CLEARED</p>
+      <h2>CHOOSE YOUR EDGE</h2>
+      <p class="overlay-copy">A moment to recalibrate. Pick one upgrade before the next swarm.</p>
+      <div id="upgradeChoices" class="upgrade-grid"></div>
+    </section>
+
+    <section id="pauseScreen" class="screen overlay hidden">
+      <p class="eyebrow">SIGNAL INTERRUPTED</p>
+      <h2>PAUSED</h2>
+      <button id="resumeButton" class="primary-button">RESUME <span>→</span></button>
+      <p class="hint">Press ESC to return to the action</p>
+    </section>
+
+    <section id="gameOverScreen" class="screen overlay hidden">
+      <p id="resultEyebrow" class="eyebrow">RUN TERMINATED</p>
+      <h2 id="resultTitle">HULL BREACH</h2>
+      <p id="resultCopy" class="overlay-copy">The swarm took the station. The salvage is still out there.</p>
+      <div class="result-stats">
+        <div><span>SCORE</span><strong id="finalScore">0</strong></div>
+        <div><span>BEST</span><strong id="finalBest">0</strong></div>
+        <div><span>SECTOR</span><strong id="finalWave">01</strong></div>
+      </div>
+      <button id="restartButton" class="primary-button">RUN IT BACK <span>↗</span></button>
+      <button id="menuButton" class="text-button">RETURN TO MENU</button>
+    </section>
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
