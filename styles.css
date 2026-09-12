@@ -56,6 +56,12 @@ h1 { font-size: clamp(58px, 9vw, 132px); line-height: .84; letter-spacing: -.08e
 h1 span { color: var(--cyan); }
 .tagline { max-width: 340px; color: #aac0ba; line-height: 1.6; margin: 0 0 34px; }
 button { font: 600 13px "DM Mono", monospace; cursor: pointer; }
+.fullscreen-button {
+  display: none; align-self: flex-start; margin: 0 0 18px; padding: 10px 13px;
+  border: 1px solid rgba(109,247,208,.42); background: rgba(109,247,208,.08);
+  color: var(--cyan); letter-spacing: .08em;
+}
+.fullscreen-button:hover { border-color: var(--cyan); background: rgba(109,247,208,.16); }
 .level-select { margin-bottom: 26px; }
 .level-select .eyebrow { margin: 0 0 10px; }
 .level-grid { display: flex; gap: 8px; }
@@ -141,6 +147,7 @@ button { font: 600 13px "DM Mono", monospace; cursor: pointer; }
   .upgrade-card { min-height: auto; padding: 14px; }
   .controls { margin-top: 48px; gap: 12px; font-size: 9px; }
   .mobile-only-hint { display: inline; }
+  .fullscreen-button { display: block; }
 }
 
 @media (min-width: 651px) {

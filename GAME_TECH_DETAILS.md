@@ -229,8 +229,8 @@ The player starts with:
 - Position: arena center
 - Radius: `14`
 - Speed: `260`
-- Hull: `3`
-- Maximum hull: `3`
+- Hull: `5`
+- Maximum hull: `5`
 - Fire delay: `0.16`
 - Dash cooldown: `0`
 - Salvage magnet range: `80`
@@ -312,7 +312,7 @@ Score values:
 
 ## 13. Upgrades
 
-After each completed sector, three upgrade cards are shown in randomized order. The player selects one before continuing.
+After each completed sector, one upgrade is selected automatically in the background. Gameplay does not pause and no upgrade popup interrupts the run.
 
 ### Overclocked coil
 
@@ -320,14 +320,13 @@ Description: `Fire rate +25%`
 
 Implementation: Multiplies player fire delay by `0.75`.
 
-### Reactive plating
+### Emergency repair
 
-Description: `Maximum hull +1`
+Description: `Restore +1 hull`
 
 Implementation:
 
-- Maximum hull increases by `1`.
-- Current hull increases by `1`.
+- Current hull increases by `1`, up to the fixed maximum of `5`.
 
 ### Salvage magnet
 
@@ -359,13 +358,9 @@ Displays:
 - Hull pips
 - Pause button
 
-### Upgrade screen
+### Automatic sector upgrade
 
-Displays:
-
-- Sector-cleared message
-- Three randomized upgrade cards
-- Upgrade names and descriptions
+The previous sector-cleared upgrade popup is no longer shown. A random upgrade is applied immediately when a sector ends, while the next sector continues without an interruption.
 
 ### Pause screen
 

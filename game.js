@@ -16,7 +16,7 @@
   let selectedLevel = 1;
   const upgrades = [
     { key: "RAPID", title: "Overclocked coil", desc: "Fire rate +25%", apply: p => p.fireDelay *= .75 },
-    { key: "HARDEN", title: "Reactive plating", desc: "Maximum hull +1", apply: p => { p.maxHp++; p.hp++; } },
+    { key: "REPAIR", title: "Emergency repair", desc: "Restore +1 hull", apply: p => { p.hp = Math.min(p.maxHp, p.hp + 1); } },
     { key: "PULSE", title: "Salvage magnet", desc: "Pull shards from farther away", apply: p => p.magnet += 45 }
   ];
   let W, H, dpr, state = "menu", last = 0, audio;
@@ -39,6 +39,8 @@
   addEventListener("mouseup", () => mouse.down = false);
   $("startButton").onclick = startGame; $("restartButton").onclick = startGame; $("menuButton").onclick = returnMenu;
   $("pauseButton").onclick = togglePause; $("resumeButton").onclick = togglePause;
+  $("fullscreenButton").onclick = toggleFullscreen;
+  document.addEventListener("fullscreenchange", updateFullscreenButton);
   setupTouchControls();
   document.querySelectorAll(".level-card").forEach(card => {
     card.onclick = () => {
@@ -48,11 +50,29 @@
   });
 
   function startAudio() { if (!audio) audio = new (window.AudioContext || window.webkitAudioContext)(); if (audio.state === "suspended") audio.resume(); }
+  async function toggleFullscreen() {
+    const shell = document.querySelector(".game-shell");
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      } else if (shell.requestFullscreen) {
+        await shell.requestFullscreen();
+      } else {
+        return;
+      }
+      updateFullscreenButton();
+    } catch (error) {
+      console.warn("Fullscreen request was not accepted by the browser.", error);
+    }
+  }
+  function updateFullscreenButton() {
+    $("fullscreenButton").textContent = document.fullscreenElement ? "EXIT FULL SCREEN" : "ENTER FULL SCREEN";
+  }
   function beep(freq, duration = .06, type = "sine", volume = .025) { if (!audio) return; const o = audio.createOscillator(), g = audio.createGain(); o.type = type; o.frequency.value = freq; g.gain.setValueAtTime(volume, audio.currentTime); g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + duration); o.connect(g); g.connect(audio.destination); o.start(); o.stop(audio.currentTime + duration); }
   function show(screen) { Object.values(screens).forEach(s => s.classList.add("hidden")); if (screen) screen.classList.remove("hidden"); }
   function startGame() {
     startAudio(); state = "play"; score = 0; wave = 1; waveTimer = 0; spawnTimer = .3; shake = 0;
-    player = { x: W / 2, y: H / 2, r: 14, speed: 260, hp: 3, maxHp: 3, fireDelay: .16, fire: 0, dash: 0, magnet: 80, invuln: 0 };
+    player = { x: W / 2, y: H / 2, r: 14, speed: 260, hp: 5, maxHp: 5, fireDelay: .16, fire: 0, dash: 0, magnet: 80, invuln: 0 };
     player.level = selectedLevel; bullets = []; enemies = []; shards = []; particles = []; show(null); $("hud").classList.remove("hidden"); updateHud();
     $("touchControls").classList.remove("hidden");
   }
@@ -112,7 +132,7 @@
     if (state !== "play") return;
     player.fire -= dt; player.dash -= dt; player.invuln -= dt; waveTimer += dt; spawnTimer -= dt;
     if (spawnTimer <= 0) { spawnEnemy(); spawnTimer = Math.max(.28, .9 - wave * .1) * (0.7 + Math.random() * .5) * levelRules[player.level].spawnMultiplier; }
-    if (waveTimer > 22) { if (wave >= 5) return endGame(true); wave++; waveTimer = 0; showUpgrade(); }
+    if (waveTimer > 22) { if (wave >= 5) return endGame(true); wave++; waveTimer = 0; applyAutomaticUpgrade(); }
     let dx = (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0) + touchMove.x, dy = (keys.has("s") ? 1 : 0) - (keys.has("w") ? 1 : 0) + touchMove.y;
     dx += (keys.has("arrowright") ? 1 : 0) - (keys.has("arrowleft") ? 1 : 0);
     dy += (keys.has("arrowdown") ? 1 : 0) - (keys.has("arrowup") ? 1 : 0);
@@ -123,10 +143,10 @@
     bullets = bullets.filter(b => b.life > 0 && b.x > -20 && b.x < W + 20 && b.y > -20 && b.y < H + 20);
     enemies.forEach(e => { const a = Math.atan2(player.y - e.y, player.x - e.x), dist = Math.hypot(player.x - e.x, player.y - e.y); if (e.shooter && dist < 330) { e.x -= Math.cos(a) * e.speed * .35 * dt; e.y -= Math.sin(a) * e.speed * .35 * dt; e.shot -= dt; if (e.shot <= 0) { bullets.push({ x: e.x, y: e.y, vx: Math.cos(a) * 190, vy: Math.sin(a) * 190, life: 3, hostile: true }); e.shot = 2; } } else { e.x += Math.cos(a) * e.speed * dt; e.y += Math.sin(a) * e.speed * dt; } if (dist < e.r + player.r) damage(); });
     bullets.forEach(b => { if (b.hostile && Math.hypot(b.x - player.x, b.y - player.y) < player.r + 5) { b.life = 0; damage(); } });
-    enemies.forEach(e => bullets.forEach(b => { if (!b.hostile && b.life > 0 && Math.hypot(b.x - e.x, b.y - e.y) < e.r + 5) { b.life = 0; e.hp--; burst(b.x, b.y, "#ffd166", 4); if (e.hp <= 0) { e.dead = true; score += e.shooter ? 80 : 30; shards.push({ x: e.x, y: e.y, r: 5, life: 8 }); burst(e.x, e.y, e.shooter ? "#ff6b9d" : "#6df7d0", 12); beep(e.shooter ? 300 : 440, .07, "triangle", .02); } } }));
+    enemies.forEach(e => bullets.forEach(b => { if (!e.dead && !b.hostile && b.life > 0 && Math.hypot(b.x - e.x, b.y - e.y) < e.r + 5) { b.life = 0; e.hp--; burst(b.x, b.y, "#ffd166", 4); if (e.hp <= 0) { e.dead = true; score += e.shooter ? 80 : 30; shards.push({ x: e.x, y: e.y, r: 5, life: 8 }); burst(e.x, e.y, e.shooter ? "#ff6b9d" : "#6df7d0", 12); beep(e.shooter ? 300 : 440, .07, "triangle", .02); } } }));
     enemies = enemies.filter(e => !e.dead); shards.forEach(s => { const a = Math.atan2(player.y - s.y, player.x - s.x), d = Math.hypot(player.x - s.x, player.y - s.y); if (d < player.magnet) { s.x += Math.cos(a) * (d < 30 ? 280 : 80) * dt; s.y += Math.sin(a) * (d < 30 ? 280 : 80) * dt; } if (d < 20) { s.collected = true; score += 10; beep(720, .05, "sine", .015); } s.life -= dt; }); shards = shards.filter(s => !s.collected && s.life > 0); particles.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; }); particles = particles.filter(p => p.life > 0); shake *= .86; updateHud();
   }
-  function showUpgrade() { state = "upgrade"; $("touchControls").classList.add("hidden"); const box = $("upgradeChoices"); box.innerHTML = ""; upgrades.sort(() => Math.random() - .5).forEach(u => { const b = document.createElement("button"); b.className = "upgrade-card"; b.innerHTML = `<b>${u.key}</b><strong>${u.title}</strong><span>${u.desc}</span>`; b.onclick = () => { u.apply(player); state = "play"; $("touchControls").classList.remove("hidden"); show(null); beep(880, .12, "sine", .035); }; box.appendChild(b); }); show(screens.upgrade); }
+  function applyAutomaticUpgrade() { const upgrade = upgrades[Math.floor(Math.random() * upgrades.length)]; upgrade.apply(player); burst(player.x, player.y, "#ffd166", 10); beep(880, .12, "sine", .035); }
   function updateHud() { $("scoreValue").textContent = String(score).padStart(6, "0"); $("waveValue").textContent = `${String(wave).padStart(2, "0")} / 05`; $("chargeMeter").style.width = `${Math.max(0, Math.min(100, (1 - Math.max(0, player.dash) / 1.3) * 100))}%`; $("hullPips").innerHTML = Array.from({ length: player.maxHp }, (_, i) => `<i class="${i >= player.hp ? "empty" : ""}"></i>`).join(""); }
   function burst(x, y, color, count) { for (let i = 0; i < count; i++) { const a = Math.random() * Math.PI * 2, s = 30 + Math.random() * 150; particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: .25 + Math.random() * .4, color }); } }
   function draw() {
