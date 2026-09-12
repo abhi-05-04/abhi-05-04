@@ -59,27 +59,45 @@
   function returnMenu() { state = "menu"; show(screens.menu); $("hud").classList.add("hidden"); $("touchControls").classList.add("hidden"); $("menuHighScore").textContent = best.toLocaleString(); }
   function togglePause() { if (state === "play") { state = "pause"; $("touchControls").classList.add("hidden"); show(screens.pause); } else if (state === "pause") { state = "play"; $("touchControls").classList.remove("hidden"); show(null); } }
   function setupTouchControls() {
-    const joystick = $("joystick"), knob = $("joystickKnob"), firePad = $("firePad"), dashButton = $("touchDash");
+    const joystick = $("joystick"), knob = $("joystickKnob"), firePad = $("firePad"), aimKnob = $("aimKnob"), dashButton = $("touchDash");
     let joystickPointer = null, firePointer = null;
     const updateJoystick = (event) => {
-      const rect = joystick.getBoundingClientRect(), radius = rect.width * .36;
+      const rect = joystick.getBoundingClientRect(), radius = rect.width * .34;
       let x = event.clientX - (rect.left + rect.width / 2), y = event.clientY - (rect.top + rect.height / 2);
-      const distance = Math.hypot(x, y), scale = Math.min(1, radius / (distance || 1));
-      x *= scale; y *= scale; touchMove.x = x / radius; touchMove.y = y / radius;
+      const distance = Math.hypot(x, y), deadZone = radius * .12;
+      if (distance <= deadZone) { x = 0; y = 0; } else {
+        const scale = Math.min(1, radius / distance);
+        x *= scale; y *= scale;
+      }
+      touchMove.x = x / radius; touchMove.y = y / radius; touchMove.active = Boolean(x || y);
       knob.style.transform = `translate(${x}px, ${y}px)`;
     };
-    const resetJoystick = () => { joystickPointer = null; touchMove.x = 0; touchMove.y = 0; knob.style.transform = ""; };
+    const resetJoystick = () => { joystickPointer = null; touchMove.x = 0; touchMove.y = 0; touchMove.active = false; knob.style.transform = ""; };
     joystick.addEventListener("pointerdown", event => { if (state !== "play") return; joystickPointer = event.pointerId; joystick.setPointerCapture(event.pointerId); updateJoystick(event); });
     joystick.addEventListener("pointermove", event => { if (event.pointerId === joystickPointer) updateJoystick(event); });
     joystick.addEventListener("pointerup", resetJoystick); joystick.addEventListener("pointercancel", resetJoystick);
-    const updateAim = event => { const rect = canvas.getBoundingClientRect(); mouse.x = event.clientX - rect.left; mouse.y = event.clientY - rect.top; };
+    const updateAim = event => {
+      const rect = firePad.getBoundingClientRect(), radius = rect.width * .34;
+      let x = event.clientX - (rect.left + rect.width / 2), y = event.clientY - (rect.top + rect.height / 2);
+      const distance = Math.hypot(x, y), deadZone = radius * .12;
+      if (distance <= deadZone) { aimKnob.style.transform = ""; return; }
+      const scale = Math.min(1, radius / distance);
+      x *= scale; y *= scale;
+      mouse.x = player.x + x / radius * 250;
+      mouse.y = player.y + y / radius * 250;
+      aimKnob.style.transform = `translate(${x}px, ${y}px)`;
+    };
+    const resetFire = event => {
+      if (event.pointerId === firePointer) {
+        firePointer = null; touchFire = false; aimKnob.style.transform = "";
+      }
+    };
     firePad.addEventListener("pointerdown", event => { if (state !== "play") return; firePointer = event.pointerId; firePad.setPointerCapture(event.pointerId); touchFire = true; updateAim(event); startAudio(); });
     firePad.addEventListener("pointermove", event => { if (event.pointerId === firePointer) updateAim(event); });
-    const resetFire = event => { if (event.pointerId === firePointer) { firePointer = null; touchFire = false; } };
     firePad.addEventListener("pointerup", resetFire); firePad.addEventListener("pointercancel", resetFire);
     dashButton.addEventListener("pointerdown", event => { event.preventDefault(); if (state === "play") { dash(); startAudio(); } });
   }
-  function dash() { if (player.dash > 0) return; const dx = (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0) + (keys.has("arrowright") ? 1 : 0) - (keys.has("arrowleft") ? 1 : 0), dy = (keys.has("s") ? 1 : 0) - (keys.has("w") ? 1 : 0) + (keys.has("arrowdown") ? 1 : 0) - (keys.has("arrowup") ? 1 : 0); if (!dx && !dy) return; player.x += dx * 100; player.y += dy * 100; player.x = Math.max(25, Math.min(W - 25, player.x)); player.y = Math.max(25, Math.min(H - 25, player.y)); player.dash = 1.3; player.invuln = .22; burst(player.x, player.y, "#6df7d0", 16); beep(480, .12, "sawtooth", .04); }
+  function dash() { if (player.dash > 0) return; const dx = (keys.has("d") ? 1 : 0) - (keys.has("a") ? 1 : 0) + (keys.has("arrowright") ? 1 : 0) - (keys.has("arrowleft") ? 1 : 0) + touchMove.x, dy = (keys.has("s") ? 1 : 0) - (keys.has("w") ? 1 : 0) + (keys.has("arrowdown") ? 1 : 0) - (keys.has("arrowup") ? 1 : 0) + touchMove.y; if (!dx && !dy) return; player.x += dx * 100; player.y += dy * 100; player.x = Math.max(25, Math.min(W - 25, player.x)); player.y = Math.max(25, Math.min(H - 25, player.y)); player.dash = 1.3; player.invuln = .22; burst(player.x, player.y, "#6df7d0", 16); beep(480, .12, "sawtooth", .04); }
 
   function spawnEnemy() {
     const edge = Math.floor(Math.random() * 4), pos = edge === 0 ? { x: Math.random() * W, y: -25 } : edge === 1 ? { x: W + 25, y: Math.random() * H } : edge === 2 ? { x: Math.random() * W, y: H + 25 } : { x: -25, y: Math.random() * H };

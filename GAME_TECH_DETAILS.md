@@ -215,10 +215,12 @@ The default bullet direction is `0°`, meaning the direction from the player to 
 On small screens, a touch-control layer is displayed during active gameplay:
 
 - **Left virtual joystick:** drag to move in any direction.
-- **Right aim/fire pad:** press and hold to fire toward the pad; drag within the pad to change aim direction.
+- **Right aim/fire joystick:** press and hold to fire; drag the joystick to change the projectile direction.
 - **Dash button:** tap to dash using the current joystick direction.
 
-Touch input feeds the same movement, aiming, shooting, and dash systems used by desktop controls. The controls are hidden on the menu, pause screen, upgrade screen, and result screen.
+Touch input feeds the same movement, aiming, shooting, and dash systems used by desktop controls. The aim joystick updates the player's aim vector continuously while held, so bullets and the ship's facing direction follow the joystick direction. The controls are hidden on the menu, pause screen, upgrade screen, and result screen.
+
+The mobile layout uses dynamic viewport sizing, `viewport-fit=cover`, safe-area insets, responsive control sizing, and a compact landscape breakpoint. Joystick input is normalized immediately with a small dead zone so direction changes do not depend on keyboard-style repeat timing.
 
 ## 9. Player Systems
 
